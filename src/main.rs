@@ -1,7 +1,7 @@
-use std::env;
 use std::fmt::Debug;
 use std::fs;
 
+use argparse::{ArgumentParser, Store};
 use glsl_shaderinfo::{get_info, Declaration};
 
 mod glsl_shaderinfo;
@@ -27,10 +27,18 @@ fn print_declarations<T: Declaration + Debug>(declarations: Vec<T>, label: &str)
 }
 
 fn main() {
-    let args: Vec<String> = env::args().collect();
-    let filename = &args[1];
+    let mut filename = String::new();
+    {    
+        let mut parser = ArgumentParser::new();
+        parser.set_description("Prints info about vars used in a GLSL shader.");
+        parser.refer(&mut filename)
+              .add_argument("filename", Store, "GLSL shader file to parse info from.")
+              .required();
+        parser.parse_args_or_exit();
+    }
 
-    let contents = fs::read_to_string(filename).expect("Unable to read the file");
+    let _err = format!("Unable to read the file: {}", filename);
+    let contents = fs::read_to_string(filename).expect(_err.as_str());
     let info = get_info(&contents);
 
     println!("GLSL version: {}", info.version_str);

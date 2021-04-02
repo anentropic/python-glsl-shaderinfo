@@ -14,11 +14,12 @@ name = "glsl_shaderinfo"
 crate-type = ["cdylib"]
 
 [[bin]]
-name = "main"
+name = "shaderinfo"
 path = "src/main.rs"
 
 [dependencies]
 glsl = "6.0.0"
+argparse = "0.2.2"
 
 [dependencies.pyo3]
 version = "0.13.2"
