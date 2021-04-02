@@ -3,6 +3,7 @@ name = "glsl-shaderinfo"
 version = "0.1.0"
 authors = ["Anentropic <ego@anentropic.com>"]
 edition = "2018"
+description = "Parses GLSL shader files and returns info about declared vars, inputs outputs, uniforms etc."
 
 [lib]
 name = "glsl_shaderinfo"
