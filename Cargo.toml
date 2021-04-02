@@ -1,0 +1,10 @@
+[package]
+name = "pyglsl"
+version = "0.1.0"
+authors = ["Anentropic <ego@anentropic.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+glsl = "6.0.0"

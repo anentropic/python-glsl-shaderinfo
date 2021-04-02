@@ -1,0 +1,326 @@
+TranslationUnit(
+  NonEmpty([
+    Preprocessor(
+      Version(
+        PreprocessorVersion { version: 330, profile: None }
+      )
+    ),
+    Declaration(
+      InitDeclaratorList(
+        InitDeclaratorList {
+          head: SingleDeclaration {
+            ty: FullySpecifiedType {
+              qualifier: Some(
+                TypeQualifier {
+                  qualifiers: NonEmpty([
+                    Storage(Uniform)
+                  ])
+                }
+              ),
+              ty: TypeSpecifier { ty: Int, array_specifier: None }
+            },
+            name: Some(Identifier("rows")),
+            array_specifier: None,
+            initializer: None
+          },
+          tail: []
+        }
+      )
+    ),
+    Declaration(
+      InitDeclaratorList(
+        InitDeclaratorList 
+          head: SingleDeclaration {
+            ty: FullySpecifiedType {
+              qualifier: Some(
+                TypeQualifier {
+                  qualifiers: NonEmpty([
+                    Storage(Uniform)
+                  ])
+                }
+              ),
+              ty: TypeSpecifier { ty: Int, array_specifier: None }
+            },
+            name: Some(Identifier("cols")),
+            array_specifier: None,
+            initializer: None
+          },
+          tail: []
+        }
+      )
+    ),
+    Declaration(
+      InitDeclaratorList(
+        InitDeclaratorList {
+          head: SingleDeclaration {
+            ty: FullySpecifiedType {
+              qualifier: Some(
+                TypeQualifier {
+                  qualifiers: NonEmpty([
+                    Storage(Uniform)
+                  ])
+                }
+              ),
+              ty: TypeSpecifier {
+                ty: Float,
+                array_specifier: None
+              }
+            },
+            name: Some(Identifier("size")),
+            array_specifier: None,
+            initializer: None
+          },
+          tail: []
+        }
+      )
+    ),
+    Declaration(
+      InitDeclaratorList(
+        InitDeclaratorList { head: SingleDeclaration { ty: FullySpecifiedType { qualifier: Some(
+  TypeQualifier { qualifiers: NonEmpty(
+  [Storage(
+  Const)]) }), ty: TypeSpecifier { ty: Float, array_specifier: None } }, name: Some(
+  Identifier(
+  "root_3")), array_specifier: None, initializer: Some(
+  Simple(
+  FloatConst(
+  1.7320508))) }, tail: [] })), Declaration(
+  InitDeclaratorList(
+  InitDeclaratorList { head: SingleDeclaration { ty: FullySpecifiedType { qualifier: Some(
+  TypeQualifier { qualifiers: NonEmpty(
+  [Storage(
+  Const)]) }), ty: TypeSpecifier { ty: Float, array_specifier: None } }, name: Some(
+  Identifier(
+  "half_root_3")), array_specifier: None, initializer: Some(
+  Simple(
+  FloatConst(
+  0.8660254))) }, tail: [] })),
+
+  Declaration(
+    InitDeclaratorList(
+      InitDeclaratorList {
+        head: SingleDeclaration {
+          ty: FullySpecifiedType {
+            qualifier: Some(
+              TypeQualifier {
+                qualifiers: NonEmpty([
+                  Storage(In)
+                ])
+              }
+            ),
+            ty: TypeSpecifier {
+              ty: Float,
+              array_specifier: None
+            }
+          },
+          name: Some(Identifier("textureId")),
+          array_specifier: None,
+          initializer: None
+        },
+        tail: []
+      }
+    )
+  ),
+  Declaration(
+  InitDeclaratorList(
+  InitDeclaratorList { head: SingleDeclaration { ty: FullySpecifiedType { qualifier: Some(
+  TypeQualifier { qualifiers: NonEmpty(
+  [Storage(
+  In)]) }), ty: TypeSpecifier { ty: Vec2, array_specifier: None } }, name: Some(
+  Identifier(
+  "gridCoord")), array_specifier: None, initializer: None }, tail: [] })),
+
+  Declaration(
+    Block(
+      Block {
+        qualifier: TypeQualifier {
+          qualifiers: NonEmpty([Storage(Out)])
+        },
+        name: Identifier("VS_OUT"),
+        fields: [
+          StructFieldSpecifier {
+            qualifier: None,
+            ty: TypeSpecifier {
+              ty: Vec2,
+              array_specifier: None
+            },
+            identifiers: NonEmpty([
+              ArrayedIdentifier {
+                ident: Identifier("gridCoord"),
+                array_spec: None
+              }
+            ])
+          },
+          StructFieldSpecifier {
+            qualifier: None,
+            ty: TypeSpecifier {
+              ty: Vec3,
+              array_specifier: None
+            },
+            identifiers: NonEmpty([
+              ArrayedIdentifier {
+                ident: Identifier("pos"),
+                array_spec: None
+              }
+            ])
+          },
+          StructFieldSpecifier {
+            qualifier: Some(
+              TypeQualifier {
+                qualifiers: NonEmpty([
+                  Interpolation(Flat)
+                ])
+              }
+            ),
+            ty: TypeSpecifier {
+              ty: Int,
+              array_specifier: None
+            },
+            identifiers: NonEmpty([
+              ArrayedIdentifier {
+                ident: Identifier("textureId"),
+                array_spec: None
+              }
+            ])
+          }
+        ],
+        identifier: Some(
+          ArrayedIdentifier {
+            ident: Identifier("vs_out"),
+            array_spec: None
+          }
+        )
+      }
+    )
+  ),
+
+  FunctionDefinition(
+  FunctionDefinition { prototype: FunctionPrototype { ty: FullySpecifiedType { qualifier: None, ty: TypeSpecifier { ty: Void, array_specifier: None } }, name: Identifier(
+  "main"), parameters: [] }, statement: CompoundStatement { statement_list: [Simple(
+  Declaration(
+  InitDeclaratorList(
+  InitDeclaratorList { head: SingleDeclaration { ty: FullySpecifiedType { qualifier: None, ty: TypeSpecifier { ty: Int, array_specifier: None } }, name: Some(
+  Identifier(
+  "col")), array_specifier: None, initializer: Some(
+  Simple(
+  Binary(
+  Mod, Variable(
+  Identifier(
+  "gl_VertexID")), Variable(
+  Identifier(
+  "cols"))))) }, tail: [] }))), Simple(
+  Declaration(
+  InitDeclaratorList(
+  InitDeclaratorList { head: SingleDeclaration { ty: FullySpecifiedType { qualifier: None, ty: TypeSpecifier { ty: Int, array_specifier: None } }, name: Some(
+  Identifier(
+  "row")), array_specifier: None, initializer: Some(
+  Simple(
+  Binary(
+  Div, Variable(
+  Identifier(
+  "gl_VertexID")), Variable(
+  Identifier(
+  "cols"))))) }, tail: [] }))), Simple(
+  Declaration(
+  InitDeclaratorList(
+  InitDeclaratorList { head: SingleDeclaration { ty: FullySpecifiedType { qualifier: None, ty: TypeSpecifier { ty: Float, array_specifier: None } }, name: Some(
+  Identifier(
+  "x_offset")), array_specifier: None, initializer: Some(
+  Simple(
+  Binary(
+  Mult, Binary(
+  Mult, Binary(
+  Mod, Variable(
+  Identifier(
+  "row")), IntConst(
+  2)), Variable(
+  Identifier(
+  "half_root_3"))), Variable(
+  Identifier(
+  "size"))))) }, tail: [] }))), Simple(
+  Declaration(
+  InitDeclaratorList(
+  InitDeclaratorList { head: SingleDeclaration { ty: FullySpecifiedType { qualifier: None, ty: TypeSpecifier { ty: Float, array_specifier: None } }, name: Some(
+  Identifier(
+  "x")), array_specifier: None, initializer: Some(
+  Simple(
+  Binary(
+  Add, Variable(
+  Identifier(
+  "x_offset")), Binary(
+  Mult, Binary(
+  Mult, Variable(
+  Identifier(
+  "col")), Variable(
+  Identifier(
+  "root_3"))), Variable(
+  Identifier(
+  "size")))))) }, tail: [] }))), Simple(
+  Declaration(
+  InitDeclaratorList(
+  InitDeclaratorList { head: SingleDeclaration { ty: FullySpecifiedType { qualifier: None, ty: TypeSpecifier { ty: Float, array_specifier: None } }, name: Some(
+  Identifier(
+  "y")), array_specifier: None, initializer: Some(
+  Simple(
+  Binary(
+  Mult, Binary(
+  Mult, Variable(
+  Identifier(
+  "row")), FloatConst(
+  1.5)), Variable(
+  Identifier(
+  "size"))))) }, tail: [] }))), Simple(
+  Expression(
+  Some(
+  Assignment(
+  Dot(
+  Variable(
+  Identifier(
+  "vs_out")), Identifier(
+  "gridCoord")), Equal, FunCall(
+  Identifier(
+  Identifier(
+  "vec2")), [Binary(
+  Div, Dot(
+  Variable(
+  Identifier(
+  "gridCoord")), Identifier(
+  "x")), Variable(
+  Identifier(
+  "rows"))), Binary(
+  Div, Dot(
+  Variable(
+  Identifier(
+  "gridCoord")), Identifier(
+  "y")), Variable(
+  Identifier(
+  "cols")))]))))), Simple(
+  Expression(
+  Some(
+  Assignment(
+  Dot(
+  Variable(
+  Identifier(
+  "vs_out")), Identifier(
+  "pos")), Equal, FunCall(
+  Identifier(
+  Identifier(
+  "vec3")), [Variable(
+  Identifier(
+  "x")), Variable(
+  Identifier(
+  "y")), FloatConst(
+  0.0)]))))), Simple(
+  Expression(
+  Some(
+  Assignment(
+  Dot(
+  Variable(
+  Identifier(
+  "vs_out")), Identifier(
+  "textureId")), Equal, FunCall(
+  Identifier(
+  Identifier(
+  "int")), [Variable(
+  Identifier(
+  "textureId"))])))))] } })]))
