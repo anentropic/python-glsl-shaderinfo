@@ -1,16 +1,33 @@
 use std::env;
+use std::fmt::Debug;
 use std::fs;
 
 use glsl::parser::Parse as _;
 use glsl::syntax::ShaderStage;
-use glsl::syntax::TranslationUnit;
-
 use glsl::syntax::{
-    ArraySpecifierDimension, Block, Expr, SingleDeclaration, StorageQualifier, StructFieldSpecifier,
+    ArraySpecifierDimension, Block, Expr, PreprocessorVersion, SingleDeclaration, StorageQualifier,
+    StructFieldSpecifier,
 };
 use glsl::visitor::{Host, Visit, Visitor};
 
-#[derive(Debug, Default)]
+trait Declaration {
+    fn get_name(&self) -> &String;
+}
+
+macro_rules! impl_Declaration {
+    // https://stackoverflow.com/a/50223259/202168
+    (for $($t:ty),+) => {
+        $(impl Declaration for $t {
+            fn get_name(&self) -> &String {
+                return &self.name;
+            }
+        })*
+    }
+}
+
+impl_Declaration!(for VarInfo, BlockInfo, FieldInfo);
+
+#[derive(Clone, Debug, Default)]
 struct VarInfo {
     name: String,
     storage: Option<String>,
@@ -25,7 +42,7 @@ impl Visitor for VarInfo {
     }
 }
 
-#[derive(Debug, Default)]
+#[derive(Clone, Debug, Default)]
 struct FieldInfo {
     name: String,
     type_name: String,
@@ -33,7 +50,7 @@ struct FieldInfo {
     // TODO: interpolation(flat)
 }
 
-#[derive(Debug, Default)]
+#[derive(Clone, Debug, Default)]
 struct BlockInfo {
     name: String,
     fields: Vec<FieldInfo>,
@@ -67,17 +84,31 @@ impl Visitor for BlockInfo {
 
 #[derive(Debug, Default)]
 struct ShaderInfo {
+    version: usize,
+    version_str: String,
     vars: Vec<VarInfo>,
     blocks: Vec<BlockInfo>,
-    inputs: usize,
-    outputs: usize,
-    uniforms: usize,
+    inputs: Vec<VarInfo>,
+    outputs: Vec<VarInfo>,
+    uniforms: Vec<VarInfo>,
 }
 impl Visitor for ShaderInfo {
     /*
     We should visit the top-level nodes of interest and then search their
     children from the visit_* methods.
     */
+    fn visit_preprocessor_version(&mut self, version: &PreprocessorVersion) -> Visit {
+        self.version = version.version as usize;
+        match &version.profile {
+            Some(profile) => {
+                let profile_str = format!("{:?}", profile).to_lowercase();
+                self.version_str = format!("{} {}", version.version, profile_str)
+            }
+            None => self.version_str = format!("{}", version.version),
+        }
+        Visit::Parent
+    }
+
     fn visit_single_declaration(&mut self, declaration: &SingleDeclaration) -> Visit {
         /*
         called for any var declaration, including top-level uniforms and const,
@@ -86,13 +117,6 @@ impl Visitor for ShaderInfo {
         if declaration.name.is_some() {
             let mut info: VarInfo = Default::default();
             declaration.visit(&mut info);
-
-            match info.storage.as_ref().map(String::as_ref) {
-                Some("In") => self.inputs += 1,
-                Some("Out") => self.outputs += 1,
-                Some("Uniform") => self.uniforms += 1,
-                _ => (),
-            }
 
             info.name = declaration.name.as_ref().unwrap().as_str().to_owned();
 
@@ -111,6 +135,13 @@ impl Visitor for ShaderInfo {
                 }
             }
 
+            match info.storage.as_ref().map(String::as_ref) {
+                Some("In") => self.inputs.push(info.clone()),
+                Some("Out") => self.outputs.push(info.clone()),
+                Some("Uniform") => self.uniforms.push(info.clone()),
+                _ => (),
+            }
+
             self.vars.push(info);
         }
         Visit::Parent
@@ -121,6 +152,7 @@ impl Visitor for ShaderInfo {
         we treat blocks as defining a type as well as an instance of that type
         */
         let mut block_info: BlockInfo = Default::default();
+        // collect fields:
         block.visit(&mut block_info);
 
         if let Some(identifier) = &block.identifier {
@@ -134,9 +166,9 @@ impl Visitor for ShaderInfo {
             block.visit(&mut var_info);
 
             match var_info.storage.as_ref().map(String::as_ref) {
-                Some("In") => self.inputs += 1,
-                Some("Out") => self.outputs += 1,
-                Some("Uniform") => self.uniforms += 1,
+                Some("In") => self.inputs.push(var_info.clone()),
+                Some("Out") => self.outputs.push(var_info.clone()),
+                Some("Uniform") => self.uniforms.push(var_info.clone()),
                 _ => (),
             }
 
@@ -155,7 +187,7 @@ impl Visitor for ShaderInfo {
 
             self.vars.push(var_info);
         } else {
-            // all the field names are top-level vars
+            // TODO all the field names are top-level vars
         }
 
         self.blocks.push(block_info);
@@ -163,49 +195,54 @@ impl Visitor for ShaderInfo {
     }
 }
 
-fn parse_stage(
-    filename: &String,
-) -> std::result::Result<TranslationUnit, glsl::parser::ParseError> {
-    let contents = fs::read_to_string(filename).expect("Unable to read the file");
-    let stage = ShaderStage::parse(contents);
-    assert!(stage.is_ok());
-    return stage;
+fn get_info(contents: &String) -> ShaderInfo {
+    let result = ShaderStage::parse(contents);
+
+    let shader = match result {
+        Ok(parsed) => parsed,
+        Err(error) => panic!("Problem parsing the file: {:?}", error),
+    };
+
+    let mut info: ShaderInfo = Default::default();
+    shader.visit(&mut info);
+
+    return info;
+}
+
+fn print_declarations<T: Declaration + Debug>(declarations: Vec<T>, label: &str) {
+    let count = declarations.len();
+    let pluralised: String;
+    match count {
+        i if i != 1 => pluralised = format!("{}s", label),
+        _ => pluralised = label.to_string(),
+    }
+    println!("{} {} declared", count, pluralised);
+    if count > 0 {
+        println!(
+            "--> {:?}",
+            declarations
+                .iter()
+                .map(|var| var.get_name())
+                .collect::<Vec<&String>>()
+        );
+        println!("--> {:?}", declarations);
+    }
 }
 
 fn main() {
     let args: Vec<String> = env::args().collect();
     let filename = &args[1];
 
-    let result = parse_stage(filename);
-    let stage = match result {
-        Ok(parsed) => parsed,
-        Err(error) => panic!("Problem parsing the file: {:?}", error),
-    };
+    let contents = fs::read_to_string(filename).expect("Unable to read the file");
+    let info = get_info(&contents);
 
-    let mut info: ShaderInfo = Default::default();
-    stage.visit(&mut info);
+    println!("GLSL version: {}", info.version_str);
 
-    println!("{} variables declared", info.vars.len());
-    println!(
-        "--> {:?}",
-        info.vars
-            .iter()
-            .map(|var| &var.name)
-            .collect::<Vec<&String>>()
-    );
-    println!("--> {:?}", info.vars);
-    println!("{} blocks declared", info.blocks.len());
-    println!(
-        "--> {:?}",
-        info.blocks
-            .iter()
-            .map(|var| &var.name)
-            .collect::<Vec<&String>>()
-    );
-    println!("--> {:?}", info.blocks);
-    println!("{} inputs declared", info.inputs);
-    println!("{} outputs declared", info.outputs);
-    println!("{} uniforms declared", info.uniforms);
+    print_declarations(info.vars, "variable");
+    print_declarations(info.blocks, "block");
+    print_declarations(info.inputs, "input");
+    print_declarations(info.outputs, "output");
+    print_declarations(info.uniforms, "uniform");
 
     // println!("{:?}", stage);
 }

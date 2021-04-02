@@ -1,5 +1,5 @@
 [package]
-name = "pyglsl"
+name = "glsl-shaderinfo"
 version = "0.1.0"
 authors = ["Anentropic <ego@anentropic.com>"]
 edition = "2018"
