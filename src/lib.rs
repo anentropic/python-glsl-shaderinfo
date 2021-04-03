@@ -1,26 +1,25 @@
 use glsl::syntax::{StorageQualifier, TypeSpecifierNonArray};
 use pyo3::class::basic::PyObjectProtocol;
-use pyo3::types::{PyTuple, PyUnicode};
 use pyo3::prelude::*;
+use pyo3::types::{PyTuple, PyUnicode};
 
 use glsl_shaderinfo::utils::{get_names, pluralise};
-use glsl_shaderinfo::{get_info, TypeSpecifier, BlockInfo, FieldInfo, ShaderInfo, VarInfo};
+use glsl_shaderinfo::{get_info, BlockInfo, FieldInfo, ShaderInfo, TypeSpecifier, VarInfo};
 
 pub mod glsl_shaderinfo;
 
-
 fn storage_to_string(storage: &StorageQualifier) -> String {
-	format!("{:?}", storage)
+    format!("{:?}", storage)
 }
 
 fn glsl_type_spec_to_string(type_specifier: &TypeSpecifierNonArray) -> String {
-	format!("{:?}", type_specifier)
+    format!("{:?}", type_specifier)
 }
 
 fn type_specifier_to_string(type_specifier: &TypeSpecifier) -> String {
     match &type_specifier {
         TypeSpecifier::GlslType(glsl_type) => glsl_type_spec_to_string(&glsl_type).to_lowercase(),
-        TypeSpecifier::BlockName(block_name) => block_name.clone()
+        TypeSpecifier::BlockName(block_name) => block_name.clone(),
     }
 }
 
@@ -62,33 +61,33 @@ impl VarInfo {
     fn get_storage(&self) -> PyResult<Option<Py<PyAny>>> {
         match &self.storage {
             Some(val) => {
-			    let gil = Python::acquire_gil();
-			    let py = gil.python();
-		        let types = PyModule::import(py, "glsl_shaderinfo.types")?;
-		        let storage_enum = types.get("StorageQualifier")?;
-		        let args = PyTuple::new(py, &[storage_to_string(&val)]);
-		        let storage_val = storage_enum.call1(args)?;
-		        Ok(Some(storage_val.into()))
-            },
+                let gil = Python::acquire_gil();
+                let py = gil.python();
+                let types = PyModule::import(py, "glsl_shaderinfo.types")?;
+                let storage_enum = types.get("StorageQualifier")?;
+                let args = PyTuple::new(py, &[storage_to_string(&val)]);
+                let storage_val = storage_enum.call1(args)?;
+                Ok(Some(storage_val.into()))
+            }
             None => Ok(None),
         }
     }
 
     #[getter]
     fn get_type_specifier(&self) -> PyResult<Py<PyAny>> {
-	    let gil = Python::acquire_gil();
-	    let py = gil.python();
+        let gil = Python::acquire_gil();
+        let py = gil.python();
         match &self.type_specifier {
             TypeSpecifier::GlslType(glsl_type) => {
-		        let types = PyModule::import(py, "glsl_shaderinfo.types")?;
-		        let type_spec_enum = types.get("TypeSpecifier")?;
-		        let args = PyTuple::new(py, &[glsl_type_spec_to_string(&glsl_type)]);
-		        let type_spec_enum_val = type_spec_enum.call1(args)?;
-		        Ok(type_spec_enum_val.into())
-            },
+                let types = PyModule::import(py, "glsl_shaderinfo.types")?;
+                let type_spec_enum = types.get("TypeSpecifier")?;
+                let args = PyTuple::new(py, &[glsl_type_spec_to_string(&glsl_type)]);
+                let type_spec_enum_val = type_spec_enum.call1(args)?;
+                Ok(type_spec_enum_val.into())
+            }
             TypeSpecifier::BlockName(block_name) => {
-            	let py_str = PyUnicode::new(py, &block_name);
-            	Ok(py_str.into())
+                let py_str = PyUnicode::new(py, &block_name);
+                Ok(py_str.into())
             }
         }
     }
@@ -97,7 +96,6 @@ impl VarInfo {
         array_to_str(&self.array)
     }
 }
-
 
 #[pyproto]
 impl PyObjectProtocol for FieldInfo {
@@ -119,19 +117,19 @@ impl PyObjectProtocol for FieldInfo {
 impl FieldInfo {
     #[getter]
     fn get_type_specifier(&self) -> PyResult<Py<PyAny>> {
-	    let gil = Python::acquire_gil();
-	    let py = gil.python();
+        let gil = Python::acquire_gil();
+        let py = gil.python();
         match &self.type_specifier {
             TypeSpecifier::GlslType(glsl_type) => {
-		        let types = PyModule::import(py, "glsl_shaderinfo.types")?;
-		        let type_spec_enum = types.get("TypeSpecifier")?;
-		        let args = PyTuple::new(py, &[glsl_type_spec_to_string(&glsl_type)]);
-		        let type_spec_enum_val = type_spec_enum.call1(args)?;
-		        Ok(type_spec_enum_val.into())
-            },
+                let types = PyModule::import(py, "glsl_shaderinfo.types")?;
+                let type_spec_enum = types.get("TypeSpecifier")?;
+                let args = PyTuple::new(py, &[glsl_type_spec_to_string(&glsl_type)]);
+                let type_spec_enum_val = type_spec_enum.call1(args)?;
+                Ok(type_spec_enum_val.into())
+            }
             TypeSpecifier::BlockName(block_name) => {
-            	let py_str = PyUnicode::new(py, &block_name);
-            	Ok(py_str.into())
+                let py_str = PyUnicode::new(py, &block_name);
+                Ok(py_str.into())
             }
         }
     }
@@ -174,17 +172,17 @@ impl PyObjectProtocol for ShaderInfo {
 }
 #[pymethods]
 impl ShaderInfo {
-	#[getter]
+    #[getter]
     pub fn get_uniform_names(&self) -> Vec<String> {
         get_names(&self.uniforms)
     }
 
-	#[getter]
+    #[getter]
     pub fn get_input_names(&self) -> Vec<String> {
         get_names(&self.inputs)
     }
 
-	#[getter]
+    #[getter]
     pub fn get_output_names(&self) -> Vec<String> {
         get_names(&self.outputs)
     }
@@ -198,7 +196,7 @@ fn glsl_shaderinfo(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_class::<FieldInfo>()?;
 
     #[pyfn(m, "get_info")]
-	#[text_signature = "(contents, /)"]
+    #[text_signature = "(contents, /)"]
     fn get_info_py(_py: Python, contents: String) -> PyResult<ShaderInfo> {
         let result = get_info(&contents);
         Ok(result)

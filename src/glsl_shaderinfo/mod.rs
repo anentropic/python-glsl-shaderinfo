@@ -5,7 +5,7 @@ use glsl::parser::Parse as _;
 use glsl::syntax::ShaderStage;
 use glsl::syntax::{
     ArraySpecifierDimension, Block, Expr, PreprocessorVersion, SingleDeclaration, StorageQualifier,
-    StructFieldSpecifier, TypeSpecifierNonArray
+    StructFieldSpecifier, TypeSpecifierNonArray,
 };
 use glsl::visitor::{Host, Visit, Visitor};
 use pyo3::prelude::*;
@@ -29,18 +29,18 @@ macro_rules! impl_Declaration {
 
 impl_Declaration!(for VarInfo, BlockInfo, FieldInfo);
 
-
 #[derive(Clone, Debug)]
 pub enum TypeSpecifier {
     GlslType(TypeSpecifierNonArray),
     BlockName(String),
 }
 impl Default for TypeSpecifier {
-    fn default() -> Self { Self::BlockName(String::from("")) }
+    fn default() -> Self {
+        Self::BlockName(String::from(""))
+    }
 }
 
-
-#[pyclass(module="glsl_shaderinfo.glsl_shaderinfo")]
+#[pyclass(module = "glsl_shaderinfo.glsl_shaderinfo")]
 #[derive(Clone, Debug, Default)]
 pub struct VarInfo {
     #[pyo3(get)]
@@ -54,7 +54,6 @@ pub struct VarInfo {
 
     #[pyo3(get)]
     pub array: Option<Vec<usize>>,
-
     // TODO: interpolation(flat, smooth, no perspective)
     // TODO: precision(high, medium, low)
     // TODO: layout
@@ -69,7 +68,7 @@ impl Visitor for VarInfo {
     }
 }
 
-#[pyclass(module="glsl_shaderinfo.glsl_shaderinfo")]
+#[pyclass(module = "glsl_shaderinfo.glsl_shaderinfo")]
 #[derive(Clone, Debug, Default)]
 pub struct FieldInfo {
     #[pyo3(get)]
@@ -80,12 +79,11 @@ pub struct FieldInfo {
 
     #[pyo3(get)]
     pub array: Option<Vec<usize>>,
-
     // TODO
     // https://docs.rs/glsl/6.0.0/glsl/syntax/enum.TypeQualifierSpec.html
 }
 
-#[pyclass(module="glsl_shaderinfo.glsl_shaderinfo")]
+#[pyclass(module = "glsl_shaderinfo.glsl_shaderinfo")]
 #[derive(Clone, Debug, Default)]
 pub struct BlockInfo {
     #[pyo3(get)]
@@ -121,7 +119,7 @@ impl Visitor for BlockInfo {
     }
 }
 
-#[pyclass(module="glsl_shaderinfo.glsl_shaderinfo")]
+#[pyclass(module = "glsl_shaderinfo.glsl_shaderinfo")]
 #[derive(Debug, Default)]
 pub struct ShaderInfo {
     #[pyo3(get)]
@@ -245,7 +243,8 @@ impl Visitor for ShaderInfo {
             // ??? how to handle this ???
         }
 
-        self.blocks.insert(block.name.as_str().to_owned(), block_info);
+        self.blocks
+            .insert(block.name.as_str().to_owned(), block_info);
         Visit::Parent
     }
 }

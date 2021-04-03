@@ -2,7 +2,6 @@ use std::fmt::Debug;
 
 use crate::glsl_shaderinfo::Declaration;
 
-
 pub fn get_names<T: Declaration + Debug>(declarations: &Vec<T>) -> Vec<String> {
     declarations
         .iter()
