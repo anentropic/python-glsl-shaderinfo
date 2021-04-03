@@ -32,10 +32,12 @@ GLSL version: 330
 * comprehensive tests, any tests...
 * what to do with uniform blocks
 * what to do with layouts i.e. https://www.khronos.org/opengl/wiki/Layout_Qualifier_(GLSL)#Shader_stage_options
+* maybe translate across the enums into python side, or defer the stringification
+* docs
 
-The most flexible option would be to export the whole of the `glsl` crate interface to Python modules and build the visitors in Python.
+The most flexible option for future use cases would be to export the whole of the `glsl` crate interface to Python modules and build the visitors in Python.
 
-But currently the AST visitors are built in the Rust side and provide a general meta info about declared variables, and we export this much smaller interface.
+But currently the AST visitors are built in the Rust side and provide a general meta info about declared variables, and we export this much smaller interface (basically just a single `get_info` method and some types).
 
 ## Notes
 

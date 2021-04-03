@@ -7,8 +7,8 @@ use glsl::syntax::{
     StructFieldSpecifier,
 };
 use glsl::visitor::{Host, Visit, Visitor};
+use pyo3::class::basic::PyObjectProtocol;
 use pyo3::prelude::*;
-
 
 pub trait Declaration {
     fn get_name(&self) -> &String;
@@ -27,12 +27,34 @@ macro_rules! impl_Declaration {
 
 impl_Declaration!(for VarInfo, BlockInfo, FieldInfo);
 
+pub fn pluralise(prefix: &str, count: usize) -> String {
+    match count {
+        i if i != 1 => format!("{}s", prefix),
+        _ => prefix.to_string(),
+    }
+}
+
+fn array_str(array: &Option<Vec<usize>>) -> String {
+    match array {
+        Some(vec) if vec.len() > 0 => format!("[{}]", vec[0]),
+        Some(vec) if vec.len() == 0 => "[]".to_string(),
+        _ => "".to_string(),
+    }
+}
+
 #[pyclass]
 #[derive(Clone, Debug, Default)]
 pub struct VarInfo {
+    #[pyo3(get)]
     pub name: String,
+
+    #[pyo3(get)]
     pub storage: Option<String>,
+
+    #[pyo3(get)]
     pub type_name: String,
+
+    #[pyo3(get)]
     pub array: Option<Vec<usize>>,
     // TODO: interpolation(flat)
 }
@@ -42,20 +64,78 @@ impl Visitor for VarInfo {
         Visit::Parent
     }
 }
+#[pyproto]
+impl PyObjectProtocol for VarInfo {
+    fn __str__(&self) -> PyResult<String> {
+        Ok(self.name.clone())
+    }
+
+    fn __repr__(&self) -> PyResult<String> {
+        let storage_str: String;
+        match &self.storage {
+            Some(val) => storage_str = format!("{} ", val.to_lowercase()),
+            None => storage_str = "".to_string(),
+        }
+        let repr = format!(
+            "<VarInfo {storage}{type_name} \"{name}{arr}\">",
+            storage = storage_str,
+            type_name = self.type_name,
+            name = self.name,
+            arr = self.array_str(),
+        );
+        Ok(repr)
+    }
+}
+#[pymethods]
+impl VarInfo {
+    pub fn array_str(&self) -> String {
+        array_str(&self.array)
+    }
+}
 
 #[pyclass]
 #[derive(Clone, Debug, Default)]
 pub struct FieldInfo {
+    #[pyo3(get)]
     pub name: String,
+
+    #[pyo3(get)]
     pub type_name: String,
+
+    #[pyo3(get)]
     pub array: Option<Vec<usize>>,
     // TODO: interpolation(flat)
+}
+#[pyproto]
+impl PyObjectProtocol for FieldInfo {
+    fn __str__(&self) -> PyResult<String> {
+        Ok(self.name.clone())
+    }
+
+    fn __repr__(&self) -> PyResult<String> {
+        let repr = format!(
+            "<FieldInfo {type_name} \"{name}{arr}\">",
+            type_name = self.type_name,
+            name = self.name,
+            arr = self.array_str(),
+        );
+        Ok(repr)
+    }
+}
+#[pymethods]
+impl FieldInfo {
+    pub fn array_str(&self) -> String {
+        array_str(&self.array)
+    }
 }
 
 #[pyclass]
 #[derive(Clone, Debug, Default)]
 pub struct BlockInfo {
+    #[pyo3(get)]
     pub name: String,
+
+    #[pyo3(get)]
     pub fields: Vec<FieldInfo>,
 }
 impl Visitor for BlockInfo {
@@ -84,16 +164,45 @@ impl Visitor for BlockInfo {
         Visit::Parent
     }
 }
+#[pyproto]
+impl PyObjectProtocol for BlockInfo {
+    fn __str__(&self) -> PyResult<String> {
+        Ok(self.name.clone())
+    }
+
+    fn __repr__(&self) -> PyResult<String> {
+        let repr = format!(
+            "<BlockInfo \"{name}\" ({fcount} {label})>",
+            name = self.name,
+            fcount = self.fields.len(),
+            label = pluralise("field", self.fields.len()),
+        );
+        Ok(repr)
+    }
+}
 
 #[pyclass]
 #[derive(Debug, Default)]
 pub struct ShaderInfo {
+    #[pyo3(get)]
     pub version: usize,
+
+    #[pyo3(get)]
     pub version_str: String,
+
+    #[pyo3(get)]
     pub vars: Vec<VarInfo>,
+
+    #[pyo3(get)]
     pub blocks: Vec<BlockInfo>,
+
+    #[pyo3(get)]
     pub inputs: Vec<VarInfo>,
+
+    #[pyo3(get)]
     pub outputs: Vec<VarInfo>,
+
+    #[pyo3(get)]
     pub uniforms: Vec<VarInfo>,
 }
 impl Visitor for ShaderInfo {
@@ -140,6 +249,8 @@ impl Visitor for ShaderInfo {
             }
 
             match info.storage.as_ref().map(String::as_ref) {
+                // TODO: maybe keep these as Rust enums and stringify in PyO3 methods
+                // (same for type_name)
                 Some("In") => self.inputs.push(info.clone()),
                 Some("Out") => self.outputs.push(info.clone()),
                 Some("Uniform") => self.uniforms.push(info.clone()),
@@ -196,6 +307,46 @@ impl Visitor for ShaderInfo {
 
         self.blocks.push(block_info);
         Visit::Parent
+    }
+}
+#[pyproto]
+impl PyObjectProtocol for ShaderInfo {
+    fn __repr__(&self) -> PyResult<String> {
+        let repr = format!(
+            "<ShaderInfo for GLSL: {version} ({in_count} {in_label}, {out_count} {out_label})>",
+            version = self.version_str,
+            in_count = self.inputs.len(),
+            in_label = pluralise("in", self.inputs.len()),
+            out_count = self.outputs.len(),
+            out_label = pluralise("out", self.outputs.len()),
+        );
+        Ok(repr)
+    }
+}
+
+fn get_names<T: Declaration + Debug>(declarations: &Vec<T>) -> Vec<String> {
+    declarations
+        .iter()
+        .map(|var| (var.get_name()).to_string())
+        .collect::<Vec<String>>()
+}
+
+#[pymethods]
+impl ShaderInfo {
+    pub fn uniform_names(&self) -> Vec<String> {
+        get_names(&self.uniforms)
+    }
+
+    pub fn input_names(&self) -> Vec<String> {
+        get_names(&self.inputs)
+    }
+
+    pub fn output_names(&self) -> Vec<String> {
+        get_names(&self.outputs)
+    }
+
+    pub fn block_names(&self) -> Vec<String> {
+        get_names(&self.blocks)
     }
 }
 

@@ -3,16 +3,13 @@ use std::fs;
 
 use argparse::{ArgumentParser, Store};
 use glsl_shaderinfo::{get_info, Declaration};
+use glsl_shaderinfo::pluralise;
 
 mod glsl_shaderinfo;
 
 fn print_declarations<T: Declaration + Debug>(declarations: Vec<T>, label: &str) {
     let count = declarations.len();
-    let pluralised: String;
-    match count {
-        i if i != 1 => pluralised = format!("{}s", label),
-        _ => pluralised = label.to_string(),
-    }
+    let pluralised = pluralise(&label, count);
     println!("{} {} declared", count, pluralised);
     if count > 0 {
         println!(
@@ -28,12 +25,13 @@ fn print_declarations<T: Declaration + Debug>(declarations: Vec<T>, label: &str)
 
 fn main() {
     let mut filename = String::new();
-    {    
+    {
         let mut parser = ArgumentParser::new();
         parser.set_description("Prints info about vars used in a GLSL shader.");
-        parser.refer(&mut filename)
-              .add_argument("filename", Store, "GLSL shader file to parse info from.")
-              .required();
+        parser
+            .refer(&mut filename)
+            .add_argument("filename", Store, "GLSL shader file to parse info from.")
+            .required();
         parser.parse_args_or_exit();
     }
 
