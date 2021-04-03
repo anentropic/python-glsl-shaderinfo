@@ -1,50 +1,102 @@
 # glsl-shaderinfo
 
-This is built on top of the Rust crate: https://crates.io/crates/glsl/
+`glsl-shaderinfo` aims to parse shader files written in the GLSL language and extract useful info about declared vars, inputs outputs, uniforms etc.
 
-To run a demo, pass a path to a GLSL source file:
-```
-cargo run myshader.glsl
-```
-Or:
-```
-cargo build
-target/debug/shaderinfo myshader.glsl
-```
-(currently broken, seems something to do with PyO3)
 
-You should see output like:
+### Implementation info
+
+`glsl-shaderinfo` is a Python library implemented primarily in Rust, using the PyO3 + Maturin toolchain.
+
+* https://github.com/PyO3/pyo3
+* https://github.com/PyO3/maturin
+
+We are using the GLSL parser crate here:  
+
+* https://crates.io/crates/glsl/
+* https://github.com/phaazon/glsl
+
+It seems fairly robust and actively maintained (2021-04). Supports up to GLSL450/GLSL460.
+
+
+### Development setup
+
+Install `rustup`: https://rustup.rs/
+
+Install `poetry`: https://python-poetry.org/docs/#installation
+
+Clone this repo.
+
 ```
-GLSL version: 330
-13 variables declared
---> ["rows", "cols", "size", "root_3", "half_root_3", "textureId", "gridCoord", "vs_out", "col", "row", "x_offset", "x", "y"]
---> [VarInfo { name: "rows", storage: Some("Uniform"), type_name: "Int", array: None }, VarInfo { name: "cols", storage: Some("Uniform"), type_name: "Int", array: None }, VarInfo { name: "size", storage: Some("Uniform"), type_name: "Float", array: None }, VarInfo { name: "root_3", storage: Some("Const"), type_name: "Float", array: None }, VarInfo { name: "half_root_3", storage: Some("Const"), type_name: "Float", array: None }, VarInfo { name: "textureId", storage: Some("In"), type_name: "Float", array: None }, VarInfo { name: "gridCoord", storage: Some("In"), type_name: "Vec2", array: None }, VarInfo { name: "vs_out", storage: Some("Out"), type_name: "VS_OUT", array: None }, VarInfo { name: "col", storage: None, type_name: "Int", array: None }, VarInfo { name: "row", storage: None, type_name: "Int", array: None }, VarInfo { name: "x_offset", storage: None, type_name: "Float", array: None }, VarInfo { name: "x", storage: None, type_name: "Float", array: None }, VarInfo { name: "y", storage: None, type_name: "Float", array: None }]
-1 block declared
---> ["VS_OUT"]
---> [BlockInfo { name: "VS_OUT", fields: [FieldInfo { name: "gridCoord", type_name: "Vec2", array: None }, FieldInfo { name: "pos", type_name: "Vec3", array: None }, FieldInfo { name: "textureId", type_name: "Int", array: None }] }]
-2 inputs declared
---> ["textureId", "gridCoord"]
---> [VarInfo { name: "textureId", storage: Some("In"), type_name: "Float", array: None }, VarInfo { name: "gridCoord", storage: Some("In"), type_name: "Vec2", array: None }]
-1 output declared
---> ["vs_out"]
---> [VarInfo { name: "vs_out", storage: Some("Out"), type_name: "VS_OUT", array: None }]
-3 uniforms declared
---> ["rows", "cols", "size"]
---> [VarInfo { name: "rows", storage: Some("Uniform"), type_name: "Int", array: None }, VarInfo { name: "cols", storage: Some("Uniform"), type_name: "Int", array: None }, VarInfo { name: "size", storage: Some("Uniform"), type_name: "Float", array: None }]
+poetry shell
+poetry install
+maturin develop
 ```
+
+`maturin` is installed as a python library and is used as the rust-python-lib build tool.
+
+`maturin develop` builds the python module and installs it in the current virtualenv.
+
+
+### Usage
+
+Now we can:
+```pycon
+$ ipython
+Python 3.9.2 (default, Feb 23 2021, 12:16:37)
+Type 'copyright', 'credits' or 'license' for more information
+IPython 7.22.0 -- An enhanced Interactive Python. Type '?' for help.
+
+In [1]: from glsl_shaderinfo import get_info
+
+In [2]: with open("../modernglproj/resources/shaders/myproj_geometry.glsl") as f:
+   ...:     src = f.read()
+   ...:
+
+In [3]: info = get_info(src)
+
+In [4]: info.inputs
+Out[4]: [<VarInfo in VS_OUT "gs_in">]
+
+In [5]: info.blocks
+Out[5]:
+{'GS_OUT': <BlockInfo "GS_OUT" (3 fields)>,
+ 'VS_OUT': <BlockInfo "VS_OUT" (3 fields)>}
+
+In [7]: info.blocks[info.inputs[0].type_specifier].fields
+Out[7]:
+[<FieldInfo vec2 "gridCoord">,
+ <FieldInfo vec3 "pos">,
+ <FieldInfo int "textureId">]
+
+In [8]: info.uniforms
+Out[8]: [<VarInfo uniform float "size">, <VarInfo uniform mat4 "projection">]
+
+In [9]: info.uniforms[0].storage
+Out[9]: <StorageQualifier.UNIFORM: 'Uniform'>
+
+In [10]: info.uniforms[0].type_specifier
+Out[10]: <TypeSpecifier.FLOAT: 'Float'>
+
+In [11]: info
+Out[11]: <ShaderInfo for GLSL: 330 (1 in, 1 out)>
+```
+
 
 ## TODO
 
 * comprehensive tests, any tests...
 * what to do with uniform blocks
 * what to do with layouts i.e. https://www.khronos.org/opengl/wiki/Layout_Qualifier_(GLSL)#Shader_stage_options
-* maybe translate across the enums into python side, or defer the stringification
-	* see https://gitter.im/PyO3/Lobby?at=60684b35d765936399d00dd5
+* publish to PyPI
 * docs
 * docstrings:
 	* on the Rust side: https://doc.rust-lang.org/stable/book/ch14-02-publishing-to-crates-io.html#making-useful-documentation-comments
 	* PyO3 should bring them across: https://pyo3.rs/v0.13.2/module.html#documentation
 
-The most flexible option for future use cases would be to export the whole of the `glsl` crate interface to Python modules and build the visitors in Python.  Possibly we can use https://serde.rs/remote-derive.html to shadow the types from `glsl` and dump them to Python primitives. See also https://docs.rs/pythonize/0.13.0/pythonize/ and possibly https://github.com/gperinazzo/dict-derive
+### Future directions
 
-But currently the AST visitors are built in the Rust side and provide a general meta info about declared variables, and we export this much smaller interface (basically just a single `get_info` method and some types).
+The most flexible option for future use cases would be to re-export the whole of the `glsl` crate interface into Python types and modules and build the AST visitors in Python.  Possibly we can use https://serde.rs/remote-derive.html to shadow the types from `glsl` and dump them to Python primitives. See also https://docs.rs/pythonize/0.13.0/pythonize/ and possibly https://github.com/gperinazzo/dict-derive
+
+But currently the AST visitors are built in the Rust side and provide a general meta info about declared variables, and we export this much smaller interface (basically just a single `get_info` method and some types) into Python.
+
+I have basically no Rust experience so the code here is probably awful, but it does work at least.
