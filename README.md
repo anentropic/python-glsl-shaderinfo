@@ -85,6 +85,8 @@ Out[11]: <ShaderInfo for GLSL: 330 (1 in, 1 out)>
 ## TODO
 
 * comprehensive tests, any tests...
+	* here are some to copy https://github.com/graphitemaster/glsl-parser/tree/main/tests
+	* also all the example programs from `moderngl`
 * what to do with uniform blocks
 * what to do with layouts i.e. https://www.khronos.org/opengl/wiki/Layout_Qualifier_(GLSL)#Shader_stage_options
 * publish to PyPI
@@ -97,7 +99,7 @@ Out[11]: <ShaderInfo for GLSL: 330 (1 in, 1 out)>
 
 I have basically no Rust experience so the code here is probably awful, but it does work at least. I will try and improve it as I learn more.
 
-The most flexible option for future use cases would be to re-export the whole of the `glsl` crate interface into Python types and modules and build the AST visitors in Python.  Possibly we can use https://serde.rs/remote-derive.html to shadow the types from `glsl` and dump them to Python primitives. See also https://docs.rs/pythonize/0.13.0/pythonize/ and possibly https://github.com/gperinazzo/dict-derive
+The most flexible option for future use cases would be to re-export the whole of the `glsl` crate interface into Python types and modules, i.e. expose the full parser and AST. Then we could build AST visitors for abitrary use cases in Python.  Possibly we can use https://serde.rs/remote-derive.html to shadow the types from `glsl` and dump them to Python primitives. See also https://docs.rs/pythonize/0.13.0/pythonize/ and possibly https://github.com/gperinazzo/dict-derive
 
 But currently the AST visitors are built in the Rust side and provide a general meta info about declared variables, and we export this much smaller interface (basically just a single `get_info` method and some types) into Python.
 
