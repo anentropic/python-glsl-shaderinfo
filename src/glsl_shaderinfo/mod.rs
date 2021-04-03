@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::fmt::Debug;
 
 use glsl::parser::Parse as _;
@@ -133,7 +134,7 @@ pub struct ShaderInfo {
     pub vars: Vec<VarInfo>,
 
     #[pyo3(get)]
-    pub blocks: Vec<BlockInfo>,
+    pub blocks: HashMap<String, BlockInfo>,
 
     #[pyo3(get)]
     pub inputs: Vec<VarInfo>,
@@ -239,10 +240,12 @@ impl Visitor for ShaderInfo {
 
             self.vars.push(var_info);
         } else {
-            // TODO all the field names are top-level vars
+            // TODO if the block is anonymous then GLSL allows you to use
+            // all the field names are top-level vars
+            // ??? how to handle this ???
         }
 
-        self.blocks.push(block_info);
+        self.blocks.insert(block.name.as_str().to_owned(), block_info);
         Visit::Parent
     }
 }

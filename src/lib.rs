@@ -174,20 +174,19 @@ impl PyObjectProtocol for ShaderInfo {
 }
 #[pymethods]
 impl ShaderInfo {
-    pub fn uniform_names(&self) -> Vec<String> {
+	#[getter]
+    pub fn get_uniform_names(&self) -> Vec<String> {
         get_names(&self.uniforms)
     }
 
-    pub fn input_names(&self) -> Vec<String> {
+	#[getter]
+    pub fn get_input_names(&self) -> Vec<String> {
         get_names(&self.inputs)
     }
 
-    pub fn output_names(&self) -> Vec<String> {
+	#[getter]
+    pub fn get_output_names(&self) -> Vec<String> {
         get_names(&self.outputs)
-    }
-
-    pub fn block_names(&self) -> Vec<String> {
-        get_names(&self.blocks)
     }
 }
 
