@@ -3,6 +3,9 @@ name = "glsl-shaderinfo"
 version = "0.1.0"
 description = "Parses GLSL shader files and returns info about declared vars, inputs outputs, uniforms etc."
 authors = ["Anentropic <ego@anentropic.com>"]
+readme = "README.md"
+homepage = "https://github.com/anentropic/python-glsl-shaderinfo"
+license = "MIT"
 
 [tool.poetry.dependencies]
 python = "^3.9"
@@ -13,5 +16,5 @@ ipython = "^7.22.0"
 ipdb = "^0.13.7"
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["maturin>=0.10,<0.11"]
+build-backend = "maturin"
