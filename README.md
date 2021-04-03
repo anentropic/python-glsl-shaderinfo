@@ -6,6 +6,12 @@ To run a demo, pass a path to a GLSL source file:
 ```
 cargo run myshader.glsl
 ```
+Or:
+```
+cargo build
+target/debug/shaderinfo myshader.glsl
+```
+(currently broken, seems something to do with PyO3)
 
 You should see output like:
 ```
@@ -35,15 +41,10 @@ GLSL version: 330
 * maybe translate across the enums into python side, or defer the stringification
 	* see https://gitter.im/PyO3/Lobby?at=60684b35d765936399d00dd5
 * docs
+* docstrings:
+	* on the Rust side: https://doc.rust-lang.org/stable/book/ch14-02-publishing-to-crates-io.html#making-useful-documentation-comments
+	* PyO3 should bring them across: https://pyo3.rs/v0.13.2/module.html#documentation
 
 The most flexible option for future use cases would be to export the whole of the `glsl` crate interface to Python modules and build the visitors in Python.  Possibly we can use https://serde.rs/remote-derive.html to shadow the types from `glsl` and dump them to Python primitives. See also https://docs.rs/pythonize/0.13.0/pythonize/ and possibly https://github.com/gperinazzo/dict-derive
 
 But currently the AST visitors are built in the Rust side and provide a general meta info about declared variables, and we export this much smaller interface (basically just a single `get_info` method and some types).
-
-## Notes
-
-To `cargo build` or `cargo run` on macOS you will need to add a `.cargo/config` file as per:  
-https://github.com/PyO3/pyo3/issues/172#issuecomment-401612673
-
-also detailed here:  
-https://github.com/PyO3/pyo3#using-rust-from-python
