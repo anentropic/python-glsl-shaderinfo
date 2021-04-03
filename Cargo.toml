@@ -12,15 +12,15 @@ name = "glsl_shaderinfo"
 # Downstream Rust code (including code in `bin/`, `examples/`, and `tests/`) will not be able
 # to `use string_sum;` unless the "rlib" or "lib" crate type is also included, e.g.:
 # crate-type = ["cdylib", "rlib"]
-crate-type = ["cdylib"]
+crate-type = ["cdylib"]  # TODO: do we need rlib?
 
 [[bin]]
 name = "shaderinfo"
 path = "src/main.rs"
 
 [dependencies]
-glsl = "6.0.0"
-argparse = "0.2.2"
+glsl = "6.0"
+argparse = "0.2"
 
 [dependencies.pyo3]
 version = "0.13.2"
