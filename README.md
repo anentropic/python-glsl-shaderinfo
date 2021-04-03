@@ -33,9 +33,10 @@ GLSL version: 330
 * what to do with uniform blocks
 * what to do with layouts i.e. https://www.khronos.org/opengl/wiki/Layout_Qualifier_(GLSL)#Shader_stage_options
 * maybe translate across the enums into python side, or defer the stringification
+	* see https://gitter.im/PyO3/Lobby?at=60684b35d765936399d00dd5
 * docs
 
-The most flexible option for future use cases would be to export the whole of the `glsl` crate interface to Python modules and build the visitors in Python.
+The most flexible option for future use cases would be to export the whole of the `glsl` crate interface to Python modules and build the visitors in Python.  Possibly we can use https://serde.rs/remote-derive.html to shadow the types from `glsl` and dump them to Python primitives. See also https://docs.rs/pythonize/0.13.0/pythonize/ and possibly https://github.com/gperinazzo/dict-derive
 
 But currently the AST visitors are built in the Rust side and provide a general meta info about declared variables, and we export this much smaller interface (basically just a single `get_info` method and some types).
 
