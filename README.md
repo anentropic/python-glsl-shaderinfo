@@ -26,7 +26,9 @@ pip install glsl-shaderinfo
 
 Wheels for Linux (Python 3.6, 3.7, 3.8, 3.9) are provided.
 
-For macOS or Windows you can still install via pip but you need to have the Rust toolchain installed (i.e. `cargo` on your PATH) and then the will be built from source automatically.
+For macOS or Windows you can still install via pip but you need to have the Rust toolchain installed (i.e. `cargo` on your PATH) and then it will be built from source automatically.
+
+You can install it via: https://rustup.rs/
 
 
 ### Usage
@@ -76,7 +78,7 @@ Out[11]: <ShaderInfo for GLSL: 330 (1 in, 1 out)>
 
 ### Development setup
 
-Install `rustup`: https://rustup.rs/
+Install the Rust toolchain: https://rustup.rs/
 
 Clone this repo.
 
@@ -126,7 +128,13 @@ The most flexible option for future use cases would be to re-export the whole of
 
 But currently the AST visitors are built in the Rust side and provide a general meta info about declared variables, and we export this much smaller interface (basically just a single `get_info` method and some types) into Python.
 
-You can see examples of the AST structure at e.g.:  
-https://github.com/anentropic/python-glsl-shaderinfo/blob/main/hexgrid_geometry.glsl-ast
+This project has a cli util for printing the AST from the parser, to help explore what is available.
 
-(I have manually formatted parts of it for readablility, the raw output is without line-breaks)
+To build it:
+```
+cargo build --bin glsl-ast
+```
+To run it:
+```
+target/debug/glsl-ast ../modernglproj/resources/shaders/myproj_geometry.glsl
+```

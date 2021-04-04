@@ -1,6 +1,6 @@
 [package]
 name = "glsl-shaderinfo"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["Anentropic <ego@anentropic.com>"]
 edition = "2018"
 description = "Parses GLSL shader files and returns info about declared vars, inputs outputs, uniforms etc."
@@ -23,7 +23,11 @@ crate-type = ["cdylib", "rlib"]
 
 [[bin]]
 name = "shaderinfo"
-path = "src/main.rs"
+path = "src/bin/shaderinfo.rs"
+
+[[bin]]
+name = "glsl-ast"
+path = "src/bin/ast.rs"
 
 [dependencies]
 glsl = "6.0"

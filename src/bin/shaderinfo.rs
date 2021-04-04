@@ -7,8 +7,6 @@ use argparse::{ArgumentParser, Store};
 use glsl_shaderinfo::glsl_shaderinfo::utils::{get_names, pluralise};
 use glsl_shaderinfo::glsl_shaderinfo::{get_info, BlockInfo, Declaration};
 
-// mod glsl_shaderinfo;
-
 fn print_declarations<T: Declaration + Debug>(declarations: &Vec<T>, label: &str) {
     let count = declarations.len();
     let pluralised = pluralise(&label, count);
@@ -30,6 +28,16 @@ fn print_blocks(declarations: &HashMap<String, BlockInfo>, label: &str) {
 }
 
 fn main() {
+    /*
+    TODO:
+    -----
+    This doesn't actually work any more, ever since I added the PyO3
+    annotations to lib.rs... I get an error when running it:
+
+    dyld: Symbol not found: _PyBaseObject_Type
+
+    It seems something does not get linked properly by PyO3
+    */
     let mut filename = String::new();
     {
         let mut parser = ArgumentParser::new();
@@ -52,6 +60,4 @@ fn main() {
     print_declarations(&info.inputs, "input");
     print_declarations(&info.outputs, "output");
     print_declarations(&info.uniforms, "uniform");
-
-    // println!("{:?}", stage);
 }
