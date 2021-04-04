@@ -1,9 +1,16 @@
 [package]
 name = "glsl-shaderinfo"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Anentropic <ego@anentropic.com>"]
 edition = "2018"
 description = "Parses GLSL shader files and returns info about declared vars, inputs outputs, uniforms etc."
+readme = "README.md"
+homepage = "https://github.com/anentropic/python-glsl-shaderinfo"
+license = "MIT"
+
+[package.metadata.maturin]
+# https://packaging.python.org/specifications/core-metadata/
+requires-python = ">=3.6"
 
 [lib]
 name = "glsl_shaderinfo"
