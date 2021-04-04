@@ -18,23 +18,15 @@ We are using the GLSL parser crate here:
 It seems fairly robust and actively maintained (2021-04). Supports up to GLSL450/GLSL460.
 
 
-### Development setup
-
-Install `rustup`: https://rustup.rs/
-
-Install `poetry`: https://python-poetry.org/docs/#installation
-
-Clone this repo.
+### Installation
 
 ```
-poetry shell
-poetry install
-maturin develop
+pip install glsl-shaderinfo
 ```
 
-`maturin` is installed as a python library and is used as the rust-python-lib build tool.
+Wheels for Linux (Python 3.6, 3.7, 3.8, 3.9) are provided.
 
-`maturin develop` builds the python module and installs it in the current virtualenv.
+For macOS or Windows you can still install via pip but you need to have the Rust toolchain installed (i.e. `cargo` on your PATH) and then the will be built from source automatically.
 
 
 ### Usage
@@ -82,18 +74,49 @@ Out[11]: <ShaderInfo for GLSL: 330 (1 in, 1 out)>
 ```
 
 
+### Development setup
+
+Install `rustup`: https://rustup.rs/
+
+Clone this repo.
+
+```
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+maturin develop
+```
+
+`maturin` is installed as a python library and is used as the rust-python-lib build tool.
+
+`maturin develop` builds the python module and installs it in the current virtualenv.
+
+#### Build & Release
+
+The Linux wheels are built via Docker:
+```
+docker run --rm -v $(pwd):/io konstin2/maturin publish --username anentropic --password <pass>
+```
+
+`maturin` will push them up to PyPI.
+
+PyPI package metadata is derived primarily from `Cargo.toml` rather than `pyproject.toml`.
+
+
 ## TODO
 
 * comprehensive tests, any tests...
 	* here are some to copy https://github.com/graphitemaster/glsl-parser/tree/main/tests
-	* also all the example programs from `moderngl`
-* what to do with uniform blocks
-* what to do with layouts i.e. https://www.khronos.org/opengl/wiki/Layout_Qualifier_(GLSL)#Shader_stage_options
-* publish to PyPI
+	* also e.g. all the example programs from `moderngl`
+* are the returned data structures the most useful representation?
+* what to do with uniform blocks?
+* what to do with layouts? i.e. https://www.khronos.org/opengl/wiki/Layout_Qualifier_(GLSL)#Shader_stage_options
+* other obscure corners of syntax (I believe the parser supports everything)
 * docs
 * docstrings:
 	* on the Rust side: https://doc.rust-lang.org/stable/book/ch14-02-publishing-to-crates-io.html#making-useful-documentation-comments
 	* PyO3 should bring them across: https://pyo3.rs/v0.13.2/module.html#documentation
+* release automation via GitHub Actions
 
 ### Future directions
 

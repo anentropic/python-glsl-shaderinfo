@@ -1,17 +1,5 @@
-# we don't have the usual [tool.poetry] block because maturin is the build tool
-# and used for publishing to PyPI
-
-# ...but we can still use poetry for development virtualenv management
-[tool.poetry.dependencies]
-# NOTE: anything here needs to be added to requires-dist in Cargo.toml
-# under [package.metadata.maturin]
-python = "^3.9"
-maturin = "^0.10.0"
-
-[tool.poetry.dev-dependencies]
-ipython = "^7.22.0"
-ipdb = "^0.13.7"
-
 [build-system]
 requires = ["maturin>=0.10,<0.11"]
 build-backend = "maturin"
+# add all other details about the package should be added to Cargo.toml
+# under [package.metadata.maturin]

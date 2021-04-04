@@ -1,0 +1,9 @@
+# to build locally
+maturin
+
+# dev tools
+ipython
+ipdb
+
+# any dependencies required by the installed library should be added to
+# `requires-dist` under [package.metadata.maturin] in Cargo.toml
